@@ -3,7 +3,8 @@
     "description": "",
     "dependencies": {
         "core": "*",
-        "v3": "*"
+        "v3": "*",
+        "MotionKit V2": "github:tinysuperlab/motionkitv2#9d537d31fd61b8de7ef4383ef51b052edfdf8da0"
     },
     "files": [
         "main.blocks",
