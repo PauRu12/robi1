@@ -1,3 +1,9 @@
+input.onButtonEvent(Button.B, input.buttonEventClick(), function () {
+    tempo += 5
+    basic.showString("+")
+    basic.pause(1000)
+    basic.clearScreen()
+})
 input.onButtonEvent(Button.A, input.buttonEventClick(), function () {
     tempo += -5
     basic.showString("-")
@@ -21,20 +27,17 @@ maqueen.irEvent(function (message) {
         maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CCW, 0)
     } else if (message == 111) {
         Linienfahrt = true
-        zähler1 = 0
+        zählerStopp = 0
     } else if (message == 151) {
         tempo2 += 5
     } else if (message == 79) {
         tempo2 += -5
     }
 })
-input.onButtonEvent(Button.B, input.buttonEventClick(), function () {
-    tempo += 5
-    basic.showString("+")
-    basic.pause(1000)
-    basic.clearScreen()
-})
-let zähler1 = 0
+let zählerLinks = 0
+let zählerRechts = 0
+let entprellen = 0
+let zählerStopp = 0
 let Linienfahrt = false
 let drehen = false
 let fahren = false
@@ -64,22 +67,44 @@ basic.forever(function () {
         maqueen.setColor(0xff00ff)
         maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 20)
         if (maqueen.readPatrol(maqueen.Patrol.PatrolRight, maqueen.Brightness.Bright) && maqueen.readPatrol(maqueen.Patrol.PatrolLeft, maqueen.Brightness.Bright)) {
-            zähler1 += 1
-            if (zähler1 > 10) {
-                maqueen.motorRun(maqueen.Motors.All, maqueen.Dir.CW, 0)
+            zählerStopp += 1
+            entprellen += 1
+            if (zählerStopp > 40) {
+                maqueen.motorStop(maqueen.Motors.All)
                 Linienfahrt = false
                 maqueen.setColor(0x000000)
+            } else if (entprellen > 5) {
+                if (zählerRechts < 5) {
+                    maqueen.setColor(0x0000ff)
+                    maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, tempo2)
+                    maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CCW, tempo2)
+                } else if (zählerLinks < 5) {
+                    maqueen.setColor(0x0000ff)
+                    maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, tempo2)
+                    maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CCW, tempo2)
+                }
             }
         } else if (maqueen.readPatrol(maqueen.Patrol.PatrolRight, maqueen.Brightness.Bright)) {
-            zähler1 = 0
+            zählerStopp = 0
+            zählerLinks = 0
+            basic.clearScreen()
             maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, tempo2)
             maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, 0)
+            zählerRechts += 1
+            led.plot(0, zählerRechts)
         } else if (maqueen.readPatrol(maqueen.Patrol.PatrolLeft, maqueen.Brightness.Bright)) {
-            zähler1 = 0
+            zählerStopp = 0
+            zählerRechts = 0
+            basic.clearScreen()
             maqueen.motorRun(maqueen.Motors.M1, maqueen.Dir.CW, tempo2)
             maqueen.motorRun(maqueen.Motors.M2, maqueen.Dir.CW, 0)
+            zählerLinks += 1
+            led.plot(4, zählerLinks)
         } else {
-            zähler1 = 0
+            zählerStopp = 0
+            zählerRechts = 0
+            zählerLinks = 0
+            basic.clearScreen()
         }
     }
 })
